@@ -5,7 +5,7 @@ import { WorkerSelector } from './components/WorkerSelector/WorkerSelector'
 import { ScheduleCalendar, START_WEEK } from './components/ScheduleCalendar/ScheduleCalendar'
 
 function getDateFromFormat(date: string): DateTime {
-  const format = "dd-LLL"
+  const format = "d-LLL"
   return DateTime.fromFormat(date, format)
 }
 
@@ -21,6 +21,11 @@ const DATA = [
   { name: "KL", role: "SPECIALS", date: getDateFromFormat("21-Jul"), startTime: "6:30", endTime: "15:00" },
   { name: "KL", role: "CUT/RECUT", date: getDateFromFormat("22-Jul"), startTime: "6:00", endTime: "14:30" },
   { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("23-Jul"), startTime: "6:30", endTime: "3:00" },
+  { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("23-Jul"), startTime: "6:30", endTime: "3:00" },
+  { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("1-Aug"), startTime: "6:30", endTime: "3:00" },
+  { name: "KL", role: "EMBED + CUT", date: getDateFromFormat("4-Aug"), startTime: "5:00", endTime: "13:30" },
+  { name: "KL", role: "MACRO", date: getDateFromFormat("7-Aug"), startTime: "15:30", endTime: "24:00" },
+  { name: "KL", role: "MACRO", date: getDateFromFormat("10-Aug"), startTime: "13:00", endTime: "23:00" },
 ]
 
 function App() {
