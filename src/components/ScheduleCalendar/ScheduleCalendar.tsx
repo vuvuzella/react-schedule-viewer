@@ -5,23 +5,26 @@ interface IScheduleCalendar {
 }
 
 enum START_WEEK {
-    MON = 1,
-    TUE = 2,
-    WED = 3,
-    THU = 4,
-    FRI = 5,
-    SAT = 6,
-    SUN = 7,
+    MON = 0,
+    TUE = 1,
+    WED = 2,
+    THU = 3,
+    FRI = 4,
+    SAT = 5,
+    SUN = 6,
 }
 
 export function ScheduleCalendar() {
 
-    const startOfTheWeek = START_WEEK.SUN
+    const startOfTheWeek = START_WEEK.FRI
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const daysHeader = [...days.slice(startOfTheWeek, days.length), ...days.slice(0, startOfTheWeek)]
 
     const dateTime = DateTime.now();
     const month = dateTime.month;
     const year = dateTime.year;
-    const OFFSET = DateTime.local(year, month, 1).weekday & startOfTheWeek;
+    const startWeekday = DateTime.local(year, month, 1).weekday;
+    const OFFSET = daysHeader.indexOf(days[startWeekday - 1]);
 
     const NUM_COLS = 7;
     const contents = Array<null>(31).fill(null).map((_, i) => i + 1);
@@ -58,13 +61,11 @@ export function ScheduleCalendar() {
                 <table>
                     <thead>
                         <tr>
-                            <td>Sun</td>
-                            <td>Mon</td>
-                            <td>Tue</td>
-                            <td>Wed</td>
-                            <td>Thu</td>
-                            <td>Fri</td>
-                            <td>Sat</td>
+                            {
+                                daysHeader.map(day => (
+                                    <td>{day}</td>
+                                ))
+                            }
                         </tr>
                     </thead>
                     <tbody>
