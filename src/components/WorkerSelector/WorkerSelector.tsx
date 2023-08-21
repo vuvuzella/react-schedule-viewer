@@ -8,7 +8,7 @@ export function WorkerSelector({ worker, workerList }: IWorkerSelector) {
         <div>
             <label>
                 Current Worker:
-                <select value={worker}>
+                <select value={worker} onChange={(e) => { }}>
                     {
                         workerList.map((worker, index) => <option key={index}>{worker}</option>)
                     }

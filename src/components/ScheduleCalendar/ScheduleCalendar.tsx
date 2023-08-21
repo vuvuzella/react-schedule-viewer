@@ -111,8 +111,8 @@ export function ScheduleCalendar({ assignments, startOfTheWeek }: IScheduleCalen
     const tableRows = createCalendarData(monthsAssignment[monthsList[1]], monthsList[1] + 1, year, daysHeader);
 
     // Generate the calendar rows jsx
-    const calendarTable = tableRows.map(row => (
-        <tr>
+    const calendarTable = tableRows.map((row, rowIndex) => (
+        <tr key={rowIndex}>
             {
                 row.map((col, i) => (
                     <td key={i + 1}>
@@ -133,10 +133,10 @@ export function ScheduleCalendar({ assignments, startOfTheWeek }: IScheduleCalen
                 <label>
                     Month
                     {/* TODO: make calendar switchable, display the montLong instead of the month number */}
-                    <select value={monthsList[0]}>
+                    <select value={monthsList[0]} onChange={(e) => { console.log("Hello"); return; }}>
                         {
                             monthsList.map(month => (
-                                <option>{month}</option>
+                                <option key={month}>{month}</option>
                             ))
                         }
                     </select>
