@@ -1,20 +1,17 @@
 import { useState } from 'react'
-import { DateTime } from 'luxon'
 import './App.css'
 import { WorkerSelector } from './components/WorkerSelector/WorkerSelector'
 import { ScheduleCalendar, START_WEEK } from './components/ScheduleCalendar/ScheduleCalendar'
 import { Uploader } from './components/Uploader/Uploader'
-
-function getDateFromFormat(date: string): DateTime {
-  const format = "d-LLL"
-  return DateTime.fromFormat(date, format)
-}
+import { getDateFromFormat } from './services/utils'
+import { ScheduleData } from './services/spreadsheet'
 
 // Possible classess:
 // Role(name, startTime, endTime) // The startTime and endTime change, can be made unique
 // AnatomicalPathologyWorker(name, Assignment[])  can be a LabTech, or an Assistant
 // Assignment(LabTech, Role)
 // Roster(DateTime, Assignments[])
+
 
 const DATA = [
   { name: "KL", role: "MACRO", date: getDateFromFormat("17-Jul"), startTime: "8:00", endTime: "16:30" },
@@ -31,16 +28,24 @@ const DATA = [
 
 function App() {
 
-  const workerList = DATA.map(worker => worker.name).reduce((accum, workerName) => !accum.includes(workerName) ? [...accum, workerName] : accum, Array<string>())
+  // const workerList = DATA.map(worker => worker.name).reduce((accum, workerName) => !accum.includes(workerName) ? [...accum, workerName] : accum, Array<string>())
   // const startDateRange = DATA.map(worker => worker.date).reduce((prevDate, curDate) => prevDate < curDate ? curDate : prevDate)
   // const endDateRange = DATA.map(worker => worker.date).reduce((prevDate, curDate) => curDate > prevDate ? curDate : prevDate)
 
-  const [worker, setWorker] = useState<string>(workerList[0]);
+  const [scheduleData, setScheduleData] = useState<ScheduleData[]>([]);
+  const workerList = scheduleData
+    .map(sched => [sched.name])
+    .reduce(
+      (accumNameList, prevNameList) =>
+        accumNameList.includes(prevNameList[0])
+          ? accumNameList
+          : [...accumNameList, ...prevNameList], []
+    );
 
   return (
     <div>
-      <Uploader />
-      <WorkerSelector worker={worker} workerList={workerList} />
+      <Uploader setData={setScheduleData} />
+      <WorkerSelector worker={workerList.length > 0 ? workerList[0] : ""} workerList={workerList} />
       <ScheduleCalendar assignments={DATA} startOfTheWeek={START_WEEK.SUN} />
     </div>
   )

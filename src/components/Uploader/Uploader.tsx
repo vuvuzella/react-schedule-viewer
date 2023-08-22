@@ -1,7 +1,11 @@
-import { FormEvent, useState, useEffect } from 'react';
+import { FormEvent, useState } from 'react';
 import { readExcelFile } from '../../services/spreadsheet';
 
-export function Uploader() {
+interface IUploader {
+    setData: any // TODO: set correct type for this
+}
+
+export function Uploader({ setData }: IUploader) {
 
     const [file, setFile] = useState<File | null>(null);
 
@@ -11,7 +15,9 @@ export function Uploader() {
         // Read data
         console.log(file);
 
-        file?.arrayBuffer().then(buffer => readExcelFile(buffer));
+        file?.arrayBuffer()
+            .then(buffer => readExcelFile(buffer))
+            .then(data => setData(data));
 
 
     }
