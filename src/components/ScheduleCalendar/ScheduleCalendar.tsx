@@ -16,8 +16,7 @@ type CalendarData = {
 interface IScheduleCalendar {
     assignments: Assignment[]
     startOfTheWeek: START_WEEK
-    // month: Month
-    // year: number
+    selectedWorker: string | undefined
 }
 
 export enum START_WEEK {
@@ -96,8 +95,7 @@ function createCalendarData(assignments: Assignment[], month: Month, year: numbe
     return tableRows;
 }
 
-export function ScheduleCalendar({ assignments, startOfTheWeek }: IScheduleCalendar) {
-
+function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START_WEEK, selectedWorker: string) {
 
     const daysHeader = getCalendarHeaderData(startOfTheWeek);
 
@@ -105,59 +103,67 @@ export function ScheduleCalendar({ assignments, startOfTheWeek }: IScheduleCalen
     const monthsList = assignments.map(worker => [worker.date.month!]).reduce((accum, curMonth) => !accum.includes(curMonth[0]) ? [...accum, ...curMonth] : accum, [])
     const monthsAssignment = monthsList.map(month => ({ [month]: assignments.filter(assignment => assignment.date.month === month) })).reduce((accum, monthAssignment) => ({ ...accum, ...monthAssignment }), {});
     const year = DateTime.now().year
-
-    // TODO: month should be oblivious of 0-based or 1-based counting..
-    // TODO: make month sdwitchable or display all months??
-    const tableRows = createCalendarData(monthsAssignment[monthsList[1]], monthsList[1] + 1, year, daysHeader);
+    const tableData = monthsList.map(monthNum => ({
+        month: monthNum,
+        calendarData: createCalendarData(monthsAssignment[monthNum], monthNum, year, daysHeader)
+    }))
 
     // Generate the calendar rows jsx
-    const calendarTable = tableRows.map((row, rowIndex) => (
-        <tr key={rowIndex}>
-            {
-                row.map((col, i) => (
-                    <td key={i + 1}>
-                        <div key={i + 2}>{col?.day}</div>
-                        <div key={i + 3}>{col?.data ? 'role: ' + col.data.role : null}</div>
-                        <div key={i + 4}>{col?.data ? 'start time: ' + col.data.startTime : null}</div>
-                        <div key={i + 5}>{col?.data ? 'end time: ' + col.data.endTime : null}</div>
-                    </td>
-                ))
-            }
-        </tr>
+    const tables = tableData.map(data => (
+        <>
+            <div>
+                Month:{' '}{data.month}
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        {
+                            daysHeader.map((day, i) => (
+                                <td key={i}>{day}</td>
+                            ))
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        data.calendarData.map((row, rowIndex) => (
+                            <tr>
+                                {
+                                    row.map((column, columnIndex) => (
+                                        <td>
+                                            <div>{column?.day}</div>
+                                            <div >{column?.data ? 'role: ' + column.data.role : null}</div>
+                                            <div >{column?.data ? 'start time: ' + column.data.startTime : null}</div>
+                                            <div >{column?.data ? 'end time: ' + column.data.endTime : null}</div>
+                                        </td>
+                                    ))
+                                }
+                            </tr>
+                        ))
+                    }
+                </tbody>
+            </table>
+            <br />
+        </>
     ))
+    return tables;
+}
+
+export function ScheduleCalendar({ assignments, startOfTheWeek, selectedWorker }: IScheduleCalendar) {
+
+
+    const filteredAssignments = selectedWorker && assignments.length
+        ? assignments
+            .filter(schedule => schedule.name.toLocaleLowerCase() === selectedWorker.toLocaleLowerCase())
+        : []
+    const view = selectedWorker ? generateCalendarTables(filteredAssignments, startOfTheWeek, selectedWorker) : null    // TODO: make this a switchable view based on currently selected view option
 
     return (
         <div className="schedule">
-            {/* TODO: list all calendar months based on the assignments data input */}
-            <div className="month">
-                <label>
-                    Month
-                    {/* TODO: make calendar switchable, display the montLong instead of the month number */}
-                    <select value={monthsList[0]} onChange={(e) => { console.log("Hello"); return; }}>
-                        {
-                            monthsList.map(month => (
-                                <option key={month}>{month}</option>
-                            ))
-                        }
-                    </select>
-                </label>
-            </div>
             <div className="view">
-                <table>
-                    <thead>
-                        <tr>
-                            {
-                                daysHeader.map((day, i) => (
-                                    <td key={i}>{day}</td>
-                                ))
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {calendarTable}
-                    </tbody>
-                </table>
+                {view}
             </div>
         </div>
+
     )
 }

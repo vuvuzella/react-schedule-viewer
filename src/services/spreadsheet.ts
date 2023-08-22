@@ -14,7 +14,7 @@ function getRole(column: string, sheet: Sheet) {
 }
 
 function getDate(row: string, sheet: Sheet) {
-    return { date: getDateFromFormat(sheet['A' + row].w) }
+    return { date: getDateFromFormat(sheet['B' + row].w) }
 }
 
 function getWorker(column: string, row: string, sheet: Sheet) {

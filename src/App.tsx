@@ -13,18 +13,18 @@ import { ScheduleData } from './services/spreadsheet'
 // Roster(DateTime, Assignments[])
 
 
-const DATA = [
-  { name: "KL", role: "MACRO", date: getDateFromFormat("17-Jul"), startTime: "8:00", endTime: "16:30" },
-  { name: "KL", role: "SPECIALS", date: getDateFromFormat("18-Jul"), startTime: "6:30", endTime: "15:00" },
-  { name: "KL", role: "SPECIALS", date: getDateFromFormat("21-Jul"), startTime: "6:30", endTime: "15:00" },
-  { name: "KL", role: "CUT/RECUT", date: getDateFromFormat("22-Jul"), startTime: "6:00", endTime: "14:30" },
-  { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("23-Jul"), startTime: "6:30", endTime: "3:00" },
-  { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("23-Jul"), startTime: "6:30", endTime: "3:00" },
-  { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("1-Aug"), startTime: "6:30", endTime: "3:00" },
-  { name: "KL", role: "EMBED + CUT", date: getDateFromFormat("4-Aug"), startTime: "5:00", endTime: "13:30" },
-  { name: "KL", role: "MACRO", date: getDateFromFormat("7-Aug"), startTime: "15:30", endTime: "24:00" },
-  { name: "KL", role: "MACRO", date: getDateFromFormat("10-Aug"), startTime: "13:00", endTime: "23:00" },
-]
+// const DATA = [
+//   { name: "KL", role: "MACRO", date: getDateFromFormat("17-Jul"), startTime: "8:00", endTime: "16:30" },
+//   { name: "KL", role: "SPECIALS", date: getDateFromFormat("18-Jul"), startTime: "6:30", endTime: "15:00" },
+//   { name: "KL", role: "SPECIALS", date: getDateFromFormat("21-Jul"), startTime: "6:30", endTime: "15:00" },
+//   { name: "KL", role: "CUT/RECUT", date: getDateFromFormat("22-Jul"), startTime: "6:00", endTime: "14:30" },
+//   { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("23-Jul"), startTime: "6:30", endTime: "3:00" },
+//   { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("23-Jul"), startTime: "6:30", endTime: "3:00" },
+//   { name: "KL", role: "ALLOCATION SLIDE FILE", date: getDateFromFormat("1-Aug"), startTime: "6:30", endTime: "3:00" },
+//   { name: "KL", role: "EMBED + CUT", date: getDateFromFormat("4-Aug"), startTime: "5:00", endTime: "13:30" },
+//   { name: "KL", role: "MACRO", date: getDateFromFormat("7-Aug"), startTime: "15:30", endTime: "24:00" },
+//   { name: "KL", role: "MACRO", date: getDateFromFormat("10-Aug"), startTime: "13:00", endTime: "23:00" },
+// ]
 
 function App() {
 
@@ -33,20 +33,28 @@ function App() {
   // const endDateRange = DATA.map(worker => worker.date).reduce((prevDate, curDate) => curDate > prevDate ? curDate : prevDate)
 
   const [scheduleData, setScheduleData] = useState<ScheduleData[]>([]);
-  const workerList = scheduleData
-    .map(sched => [sched.name])
-    .reduce(
-      (accumNameList, prevNameList) =>
-        accumNameList.includes(prevNameList[0])
-          ? accumNameList
-          : [...accumNameList, ...prevNameList], []
-    );
+  const [workerList, setWorkerList] = useState<string[]>([]);
+  const [selectedWorker, setSelectedWorker] = useState<string | undefined>(workerList.length > 0 ? workerList[0] : undefined);
+
+  function onUploadData(data: ScheduleData[]) {
+    setScheduleData(data);
+    const workerList = data
+      .map(sched => [sched.name])
+      .reduce(
+        (accumNameList, prevNameList) =>
+          accumNameList.includes(prevNameList[0])
+            ? accumNameList
+            : [...accumNameList, ...prevNameList], []
+      );
+    setWorkerList(workerList);
+    setSelectedWorker(workerList[0]);
+  }
 
   return (
     <div>
-      <Uploader setData={setScheduleData} />
-      <WorkerSelector worker={workerList.length > 0 ? workerList[0] : ""} workerList={workerList} />
-      <ScheduleCalendar assignments={DATA} startOfTheWeek={START_WEEK.SUN} />
+      <Uploader setData={onUploadData} />
+      <WorkerSelector worker={selectedWorker} workerList={workerList} setSelectedWorker={setSelectedWorker} />
+      <ScheduleCalendar assignments={scheduleData} selectedWorker={selectedWorker} startOfTheWeek={START_WEEK.SUN} />
     </div>
   )
 }
