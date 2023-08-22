@@ -58,7 +58,9 @@ export type ScheduleData = {
     date: DateTime,
     startTime: string,
     endTime: string,
-    cell: string
+    meta: {
+        cell: string
+    }
 }
 
 export function readExcelFile(buffer: ArrayBuffer): ScheduleData[] {
