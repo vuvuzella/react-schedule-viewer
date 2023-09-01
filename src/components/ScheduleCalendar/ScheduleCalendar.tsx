@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { Table, Container } from "react-bootstrap";
 
 type Assignment = {
     name: string,
@@ -20,13 +21,13 @@ interface IScheduleCalendar {
 }
 
 export enum START_WEEK {
-    MON = 0,
-    TUE = 1,
-    WED = 2,
-    THU = 3,
-    FRI = 4,
-    SAT = 5,
-    SUN = 6,
+    MONDAY = 0,
+    TUESDAY = 1,
+    WEDNESDAY = 2,
+    THURSDAY = 3,
+    FRIDAY = 4,
+    SATURDAY = 5,
+    SUNDAY = 6,
 }
 
 export enum Month {
@@ -44,7 +45,7 @@ export enum Month {
     Dec = 12
 }
 
-const daysList = Object.keys(START_WEEK).filter(key => isNaN(Number(key))).map(day => day.toLowerCase());
+const daysList = Object.keys(START_WEEK).filter(key => isNaN(Number(key))).map(day => day.toLowerCase().split('').map((letter, index) => index === 0 ? letter.toLocaleUpperCase() : letter).join(''));
 
 function getCalendarHeaderData(startOfTheWeek: START_WEEK): Array<string> {
     // Re-arrange the days according to the chosen startOfTheWeek
@@ -100,11 +101,11 @@ function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START
     const daysHeader = getCalendarHeaderData(startOfTheWeek);
 
     // TODO: display all months calendar given the array of assignments which contain the months to view
-    const monthsList = assignments.map(worker => [worker.date.month!]).reduce((accum, curMonth) => !accum.includes(curMonth[0]) ? [...accum, ...curMonth] : accum, [])
-    const monthsAssignment = monthsList.map(month => ({ [month]: assignments.filter(assignment => assignment.date.month === month) })).reduce((accum, monthAssignment) => ({ ...accum, ...monthAssignment }), {});
+    const workerMonthsList = assignments.map(worker => [worker.date.month!]).reduce((accum, curMonth) => !accum.includes(curMonth[0]) ? [...accum, ...curMonth] : accum, [])
+    const monthsAssignment = workerMonthsList.map(month => ({ [month]: assignments.filter(assignment => assignment.date.month === month) })).reduce((accum, monthAssignment) => ({ ...accum, ...monthAssignment }), {});
     const year = DateTime.now().year
-    const tableData = monthsList.map(monthNum => ({
-        month: monthNum,
+    const tableData = workerMonthsList.map(monthNum => ({
+        month: DateTime.local(year, monthNum).monthLong,
         calendarData: createCalendarData(monthsAssignment[monthNum], monthNum, year, daysHeader)
     }))
 
@@ -112,38 +113,40 @@ function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START
     const tables = tableData.map(data => (
         <>
             <div>
-                Month:{' '}{data.month}
+                <h2>{data.month}</h2>
             </div>
-            <table>
-                <thead>
-                    <tr>
+
+            <div className="table-responsive">
+                <Table className="align-middle" striped="columns" bordered>
+                    <thead>
+                        <tr>
+                            {
+                                daysHeader.map((day, i) => (
+                                    <th key={i}>{day}</th>
+                                ))
+                            }
+                        </tr>
+                    </thead>
+                    <tbody className="table-group-divider">
                         {
-                            daysHeader.map((day, i) => (
-                                <td key={i}>{day}</td>
+                            data.calendarData.map((row, rowIndex) => (
+                                <tr key={rowIndex}>
+                                    {
+                                        row.map((column, columnIndex) => (
+                                            <td key={String(rowIndex) + columnIndex} >
+                                                <div key={String(rowIndex) + columnIndex + 1}>{column?.day}</div>
+                                                <div key={String(rowIndex) + columnIndex + 2}>{column?.data ? 'role: ' + column.data.role.trim() : null}</div>
+                                                <div key={String(rowIndex) + columnIndex + 3}>{column?.data ? 'start time: ' + column.data.startTime.trim() : null}</div>
+                                                <div key={String(rowIndex) + columnIndex + 4}>{column?.data ? 'end time: ' + column.data.endTime.trim() : null}</div>
+                                            </td>
+                                        ))
+                                    }
+                                </tr>
                             ))
                         }
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        data.calendarData.map((row, rowIndex) => (
-                            <tr>
-                                {
-                                    row.map((column, columnIndex) => (
-                                        <td>
-                                            <div>{column?.day}</div>
-                                            <div >{column?.data ? 'role: ' + column.data.role : null}</div>
-                                            <div >{column?.data ? 'start time: ' + column.data.startTime : null}</div>
-                                            <div >{column?.data ? 'end time: ' + column.data.endTime : null}</div>
-                                        </td>
-                                    ))
-                                }
-                            </tr>
-                        ))
-                    }
-                </tbody>
-            </table>
-            <br />
+                    </tbody>
+                </Table>
+            </div>
         </>
     ))
     return tables;

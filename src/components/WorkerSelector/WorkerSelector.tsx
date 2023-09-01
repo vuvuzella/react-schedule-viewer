@@ -1,3 +1,5 @@
+import { Form } from "react-bootstrap"
+
 interface IWorkerSelector {
     worker: string | undefined
     workerList: string[]
@@ -6,15 +8,19 @@ interface IWorkerSelector {
 
 export function WorkerSelector({ worker, workerList, setSelectedWorker }: IWorkerSelector) {
     return (
-        <div>
-            <label>
-                Current Worker:
-                <select value={worker} onChange={(e) => setSelectedWorker(e.target.value)}>
-                    {
-                        workerList.map((worker, index) => <option key={index} value={worker}>{worker}</option>)
-                    }
-                </select>
-            </label>
-        </div>
+        <>
+            {
+                workerList.length ? (
+                    <Form.Label>
+                        Current Worker:
+                        <Form.Select value={worker} onChange={(e) => setSelectedWorker(e.target.value)}>
+                            {
+                                workerList.map((worker, index) => <option key={index} value={worker}>{worker}</option>)
+                            }
+                        </Form.Select>
+                    </Form.Label>
+                ) : null
+            }
+        </>
     )
 }
