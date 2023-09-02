@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { Table, Container } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 
 type Assignment = {
     name: string,
@@ -96,11 +96,10 @@ function createCalendarData(assignments: Assignment[], month: Month, year: numbe
     return tableRows;
 }
 
-function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START_WEEK, selectedWorker: string) {
-
-    const daysHeader = getCalendarHeaderData(startOfTheWeek);
+function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START_WEEK, _selectedWorker: string) {   //
 
     // TODO: display all months calendar given the array of assignments which contain the months to view
+    const daysHeader = getCalendarHeaderData(startOfTheWeek);
     const workerMonthsList = assignments.map(worker => [worker.date.month!]).reduce((accum, curMonth) => !accum.includes(curMonth[0]) ? [...accum, ...curMonth] : accum, [])
     const monthsAssignment = workerMonthsList.map(month => ({ [month]: assignments.filter(assignment => assignment.date.month === month) })).reduce((accum, monthAssignment) => ({ ...accum, ...monthAssignment }), {});
     const year = DateTime.now().year
@@ -110,19 +109,19 @@ function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START
     }))
 
     // Generate the calendar rows jsx
-    const tables = tableData.map(data => (
-        <>
-            <div>
-                <h2>{data.month}</h2>
+    const tables = tableData.map((data, index) => (
+        <div key={String(index) + "main-table-data"}>
+            <div key={String(index) + "month-div"}>
+                <h2 key={String(index) + "month-h2"}>{data.month}</h2>
             </div>
 
-            <div className="table-responsive">
-                <Table className="align-middle" striped="columns" bordered>
+            <div key={String(index) + "calendar-data-div"} className="table-responsive">
+                <Table key={String(index) + "Table"} className="align-middle" striped="columns" bordered>
                     <thead>
-                        <tr>
+                        <tr key={String(index) + "tr"}>
                             {
                                 daysHeader.map((day, i) => (
-                                    <th key={i}>{day}</th>
+                                    <th key={String(i) + "daysHeader-th"}>{day}</th>
                                 ))
                             }
                         </tr>
@@ -130,10 +129,10 @@ function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START
                     <tbody className="table-group-divider">
                         {
                             data.calendarData.map((row, rowIndex) => (
-                                <tr key={rowIndex}>
+                                <tr key={String(rowIndex) + "calendar-rows"}>
                                     {
                                         row.map((column, columnIndex) => (
-                                            <td key={String(rowIndex) + columnIndex} >
+                                            <td key={String(rowIndex) + columnIndex + "days-td"} >
                                                 <div key={String(rowIndex) + columnIndex + 1}>{column?.day}</div>
                                                 <div key={String(rowIndex) + columnIndex + 2}>{column?.data ? 'role: ' + column.data.role.trim() : null}</div>
                                                 <div key={String(rowIndex) + columnIndex + 3}>{column?.data ? 'start time: ' + column.data.startTime.trim() : null}</div>
@@ -147,7 +146,7 @@ function generateCalendarTables(assignments: Assignment[], startOfTheWeek: START
                     </tbody>
                 </Table>
             </div>
-        </>
+        </div>
     ))
     return tables;
 }
